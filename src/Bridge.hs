@@ -1,9 +1,9 @@
 module Bridge where
 
-data IslandBridge =
-  BridgeOpened Int Int Int Int 
+data IslandBridge
+  = BridgeOpened Int Int Int Int
   | BridgeClosed Int Int Int
-  deriving Show
+  deriving (Show)
 
 -- smart constructor
 mkBridge :: Int -> Int -> Int -> Int -> IslandBridge
@@ -49,27 +49,34 @@ initBridge_pre lim = lim > 0
 
 -- opération : entrée du continent vers l'île
 enterToIsland :: IslandBridge -> IslandBridge
-enterToIsland (BridgeOpened lim nbTo nbI nbFrom) = mkBridge lim (nbTo+1) nbI nbFrom
+enterToIsland (BridgeOpened lim nbTo nbI nbFrom) = mkBridge lim (nbTo + 1) nbI nbFrom
 enterToIsland (BridgeClosed _ _ _) = error "Cannot enter bridge to island"
 
 enterToIsland_pre :: IslandBridge -> Bool
 enterToIsland_pre b@(BridgeOpened lim _ _ _) = nbCars b < lim
 enterToIsland_pre (BridgeClosed _ _ _) = False
 
+-- permet à un véhicule de quitter le pont vers l'île
 leaveToIsland :: IslandBridge -> IslandBridge
-leaveToIsland _ = undefined
+leaveToIsland (BridgeOpened lim nbTo nbI nbFrom) = mkBridge lim (nbTo - 1) (nbI + 1) nbFrom
+leaveToIsland b@(BridgeClosed lim nbTo nbFrom) = mkBridge lim (nbTo - 1) (1 + nbCarsOnIsland b) nbFrom
 
 leaveToIsland_pre :: IslandBridge -> Bool
-leaveToIsland_pre _ = undefined
+leaveToIsland_pre b = nbCarsToIsland b > 0
 
+-- permet à un véhicule d'entrer sur le pont depuis l'île
 enterFromIsland :: IslandBridge -> IslandBridge
-enterFromIsland _ = undefined
+enterFromIsland (BridgeOpened lim nbTo nbI nbFrom) = mkBridge lim nbTo (nbI - 1) (nbFrom + 1)
+enterFromIsland b@(BridgeClosed lim nbTo nbFrom) = mkBridge lim nbTo ((nbCarsOnIsland b) - 1) (nbFrom + 1)
 
 enterFromIsland_pre :: IslandBridge -> Bool
-enterFromIsland_pre _ = undefined
+enterFromIsland_pre b = nbCarsOnIsland b > 0
 
+-- permet à un véhicule de quitter le pont vers le continent
 leaveFromIsland :: IslandBridge -> IslandBridge
-leaveFromIsland _ = undefined
+leaveFromIsland (BridgeOpened lim nbTo nbI nbFrom) = mkBridge lim nbTo nbI (nbFrom - 1)
+leaveFromIsland b@(BridgeClosed lim nbTo nbFrom) = mkBridge lim nbTo (nbCarsOnIsland b) (nbFrom - 1)
 
 leaveFromIsland_pre :: IslandBridge -> Bool
-leaveFromIsland_pre _ = undefined
+leaveFromIsland_pre (BridgeOpened _ _ _ nbFrom) = nbFrom > 0
+leaveFromIsland_pre (BridgeClosed _ _ nbFrom) = nbFrom > 0
