@@ -19,3 +19,6 @@ main = hspec $ do
   BS.bridgeSpecGenOk
   BS.bridgeSpecGenFree
   BS.enterToIslandSpec
+  BS.leaveToIslandSpec 
+  BS.enterFromIslandSpec 
+  BS.leaveFromIslandSpec 
